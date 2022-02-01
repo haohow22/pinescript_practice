@@ -1,0 +1,41 @@
+//@version=4
+study("RS指標(NQ)", overlay=false)
+
+// 相對強弱勢(Relative Strength,RS)指標
+
+// 根據網路上看到的定義，所謂的相對強弱指標(Relative Strength,RS)就是去比較兩個主體之間的在某段時間的相對強弱，
+// 也就是在特定時間間隔裡面把某支股票的漲跌幅與大盤指數(或是類股指數)的漲跌幅做比較，
+// 舉例來說，
+// 設定時間區間為20天，假設大盤在這20天的漲幅是5%(=0.05)，而某支股票這20天的的漲幅是30%(=0.3)，
+// 所以這支股票的RS就是0.3/0.05=6，
+// 因此只要個股在某段期間的漲幅大於大盤的漲幅，其RS就會大於1，因此這個指標所篩選的就是某段期間其漲幅大於大盤的股票，也就是相對於大盤更強勢的股票，
+//在標題列顯示的單位是%
+
+// 本身的商品代號 syminfo.tickerid
+// 其他的商品代號以 "交易所:代號" 來表示
+
+mkt_close = security("CME_MINI:NQ1!", "D", close)   //用來比較的商品 NQ
+
+Length = input(20, minval=1)     // 時間區間
+
+// 目前個股的漲幅計算
+my_increase = ((close*100 - close[Length]*100)/close[Length]*1)/1
+
+// 大盤的漲幅計算
+mkt_increase = ((mkt_close*100 - mkt_close[21]*100)/mkt_close[Length]*1)/1
+
+
+l1 = plot(my_increase, color=color.red)   //紅色是商品
+l2 = plot(mkt_increase, color=color.blue) //藍色是大盤
+
+hline(0)  // 在零的位置畫一條水平虛線
+fill(l1, l2, color=my_increase>=mkt_increase ? color.red : color.white)  // 填入色塊
+
+
+// linestyle的選項：
+// hline.style_solid（實線）、hline.style_dotted（點線）、hline.style_dashed（虛線）。
+UpBand = 30
+DownBand = -30
+h1 = hline(UpBand, color=color.red, linestyle=hline.style_dotted)  // 在上方30處畫出紅線（點線）
+h2 = hline(DownBand, color=color.green, linestyle=hline.style_dotted)  // 在下方-30處畫出綠線（點線）
+fill(h1, h2, color=color.gray)
